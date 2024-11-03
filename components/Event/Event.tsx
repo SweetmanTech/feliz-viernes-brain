@@ -7,6 +7,7 @@ export interface EventType {
     uniqueId?: string;
     highLevelPlans?: string[];
     finalThoughts?: string;
+    postUrl?: string;
   };
 }
 
@@ -40,6 +41,16 @@ const Event = ({ event }: { event: EventType }) => (
       <div className="flex flex-col gap-1">
         <span className="font-semibold">Post Text:</span>
         <p className="list-disc list-inside pl-2">{event.metadata.content}</p>
+        {event.metadata.postUrl && (
+          <a
+            href={event.metadata.postUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-400 hover:text-blue-300 underline mt-1"
+          >
+            View on Warpcast →
+          </a>
+        )}
       </div>
     )}
   </div>
