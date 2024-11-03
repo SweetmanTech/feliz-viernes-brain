@@ -5,6 +5,7 @@ import { Terminal } from "lucide-react";
 import { getLatestEvents } from "@/lib/stack/events";
 import type { EventType } from "@/components/Event/Event";
 import Event from "@/components/Event";
+import CurrentState from "@/components/CurrentState";
 
 export default function Component() {
   const [events, setEvents] = useState<EventType[]>([]);
@@ -13,41 +14,43 @@ export default function Component() {
 
   // Fetch events initially and poll for updates
   useEffect(() => {
-    // Initial fetch
     const fetchEvents = async () => {
       const latestEvents = await getLatestEvents();
-      console.log("latestEvents", latestEvents.events);
       setEvents(latestEvents.events);
+      setCurrentText("");
+      setCurrentIndex(0);
     };
 
-    // Fetch immediately
     fetchEvents();
-
-    // Set up polling interval
     const interval = setInterval(fetchEvents, 5000);
-
-    // Cleanup interval on unmount
     return () => clearInterval(interval);
   }, []);
 
+  // Get the text to display based on event type
+  const getDisplayText = (event: EventType) => {
+    console.log("event", event);
+    if (event.event === "sleeping") {
+      const plans = event.metadata.highLevelPlans || "";
+      const thoughts = event.metadata.finalThoughts || "";
+      return `Plans: ${plans}\nThoughts: ${thoughts}`;
+    }
+    return event.metadata.content || event.event;
+  };
+
   // Typewriter effect
   useEffect(() => {
-    const text = events?.[0]?.metadata?.content || "sleeping";
-    if (events.length > 0 && currentIndex < text.length) {
+    if (events.length === 0) return;
+
+    const text = getDisplayText(events[0]);
+    if (currentIndex < text.length) {
       const timer = setTimeout(() => {
         setCurrentText((prev) => prev + text[currentIndex]);
         setCurrentIndex((prev) => prev + 1);
-      }, 50);
+      }, 5);
 
       return () => clearTimeout(timer);
     }
   }, [currentIndex, events]);
-
-  // Reset typewriter when new event comes in
-  useEffect(() => {
-    setCurrentText("");
-    setCurrentIndex(0);
-  }, [events.length]);
 
   return (
     <div className="min-h-[600px] bg-black text-green-400 font-mono p-4 rounded-lg border border-green-900">
@@ -62,17 +65,7 @@ export default function Component() {
       </div>
 
       <div className="space-y-4">
-        <div className="bg-black/50 p-4 rounded border border-green-900">
-          <h2 className="text-sm font-bold mb-2">CURRENT_STATE</h2>
-          <div className="flex items-start gap-2">
-            <span className="text-blue-400">{">"}</span>
-            <p className="text-sm">
-              {events.length > 0 ? currentText : "Awaiting new events..."}
-              <span className="animate-pulse">_</span>
-            </p>
-          </div>
-        </div>
-
+        <CurrentState events={events} currentText={currentText} />
         <div className="bg-black/50 p-4 rounded border border-green-900">
           <h2 className="text-sm font-bold mb-2">EVENT_LOG</h2>
           <div className="space-y-2">
