@@ -2,45 +2,40 @@
 
 import { useEffect, useState } from "react";
 import { Terminal } from "lucide-react";
-
-interface Event {
-  id: string;
-  timestamp: string;
-  type: string;
-  message: string;
-}
+import { getLatestEvents } from "@/lib/stack/events";
+import type { EventType } from "@/components/Event/Event";
+import Event from "@/components/Event";
 
 export default function Component() {
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<EventType[]>([]);
   const [currentText, setCurrentText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Simulate new events coming in
+  // Fetch events initially and poll for updates
   useEffect(() => {
-    const interval = setInterval(() => {
-      const newEvent = {
-        id: Math.random().toString(36).substring(7),
-        timestamp: new Date().toISOString(),
-        type: ["TASK", "OBSERVATION", "ACTION"][Math.floor(Math.random() * 3)],
-        message: [
-          "Analyzing user sentiment patterns...",
-          "Engaging with community members...",
-          "Processing natural language queries...",
-          "Updating knowledge base...",
-          "Optimizing response algorithms...",
-        ][Math.floor(Math.random() * 5)],
-      };
-      setEvents((prev) => [newEvent, ...prev].slice(0, 50));
-    }, 5000);
+    // Initial fetch
+    const fetchEvents = async () => {
+      const latestEvents = await getLatestEvents();
+      console.log("latestEvents", latestEvents.events);
+      setEvents(latestEvents.events);
+    };
 
+    // Fetch immediately
+    fetchEvents();
+
+    // Set up polling interval
+    const interval = setInterval(fetchEvents, 5000);
+
+    // Cleanup interval on unmount
     return () => clearInterval(interval);
   }, []);
 
   // Typewriter effect
   useEffect(() => {
-    if (events.length > 0 && currentIndex < events[0].message.length) {
+    const text = events?.[0]?.metadata?.content || "sleeping";
+    if (events.length > 0 && currentIndex < text.length) {
       const timer = setTimeout(() => {
-        setCurrentText((prev) => prev + events[0].message[currentIndex]);
+        setCurrentText((prev) => prev + text[currentIndex]);
         setCurrentIndex((prev) => prev + 1);
       }, 50);
 
@@ -82,13 +77,7 @@ export default function Component() {
           <h2 className="text-sm font-bold mb-2">EVENT_LOG</h2>
           <div className="space-y-2">
             {events.map((event) => (
-              <div key={event.id} className="text-sm flex gap-2">
-                <span className="text-blue-400 whitespace-nowrap">
-                  {new Date(event.timestamp).toLocaleTimeString()}
-                </span>
-                <span className="text-yellow-400">[{event.type}]</span>
-                <span>{event.message}</span>
-              </div>
+              <Event key={event.metadata.uniqueId} event={event} />
             ))}
           </div>
         </div>

@@ -4,10 +4,8 @@ import { stack } from "@/lib/stack";
 export async function GET() {
   try {
     // Get latest events from Stack SDK
-    const events = await stack.events.list({
-      limit: 50,
-      orderBy: "timestamp",
-      orderDirection: "desc",
+    const events = await stack.getEvents({
+      query: stack.eventsQuery().limit(50).build(),
     });
 
     return NextResponse.json({ events });
