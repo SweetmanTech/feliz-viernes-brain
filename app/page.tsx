@@ -11,7 +11,7 @@ export default function Component() {
   const [events, setEvents] = useState<EventType[]>([]);
   const [currentText, setCurrentText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
-
+  console.log("Sweets events", events);
   // Fetch events initially and poll for updates
   useEffect(() => {
     const fetchEvents = async () => {
@@ -28,7 +28,6 @@ export default function Component() {
 
   // Get the text to display based on event type
   const getDisplayText = (event: EventType) => {
-    console.log("event", event);
     if (event.event === "sleeping") {
       const plans = event.metadata.highLevelPlans || "";
       const thoughts = event.metadata.finalThoughts || "";
