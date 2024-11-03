@@ -1,13 +1,6 @@
-interface Event {
-  id: string;
-  timestamp: string;
-  type: string;
-  metadata: {
-    content?: string;
-  };
-}
+import { EventType } from "@/components/Event/Event";
 
-export async function getLatestEvents(): Promise<{ events: Event[] }> {
+export async function getLatestEvents(): Promise<{ events: EventType[] }> {
   try {
     const response = await fetch("/api/stack/events", {
       method: "GET",
