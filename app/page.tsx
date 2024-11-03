@@ -11,7 +11,7 @@ export default function Component() {
   const [events, setEvents] = useState<EventType[]>([]);
   const [currentText, setCurrentText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
-  console.log("Sweets events", events);
+
   // Fetch events initially and poll for updates
   useEffect(() => {
     const fetchEvents = async () => {
