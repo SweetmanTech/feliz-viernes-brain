@@ -1,101 +1,103 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect, useState } from "react";
+import { Terminal } from "lucide-react";
+
+interface Event {
+  id: string;
+  timestamp: string;
+  type: string;
+  message: string;
+}
+
+export default function Component() {
+  const [events, setEvents] = useState<Event[]>([]);
+  const [currentText, setCurrentText] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Simulate new events coming in
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const newEvent = {
+        id: Math.random().toString(36).substring(7),
+        timestamp: new Date().toISOString(),
+        type: ["TASK", "OBSERVATION", "ACTION"][Math.floor(Math.random() * 3)],
+        message: [
+          "Analyzing user sentiment patterns...",
+          "Engaging with community members...",
+          "Processing natural language queries...",
+          "Updating knowledge base...",
+          "Optimizing response algorithms...",
+        ][Math.floor(Math.random() * 5)],
+      };
+      setEvents((prev) => [newEvent, ...prev].slice(0, 50));
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Typewriter effect
+  useEffect(() => {
+    if (events.length > 0 && currentIndex < events[0].message.length) {
+      const timer = setTimeout(() => {
+        setCurrentText((prev) => prev + events[0].message[currentIndex]);
+        setCurrentIndex((prev) => prev + 1);
+      }, 50);
+
+      return () => clearTimeout(timer);
+    }
+  }, [currentIndex, events]);
+
+  // Reset typewriter when new event comes in
+  useEffect(() => {
+    setCurrentText("");
+    setCurrentIndex(0);
+  }, [events.length]);
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-[600px] bg-black text-green-400 font-mono p-4 rounded-lg border border-green-900">
+      <div className="flex items-center gap-2 mb-4 pb-4 border-b border-green-900">
+        <Terminal className="h-5 w-5" />
+        <h1 className="text-lg font-bold">Feliz Viernes Status Terminal</h1>
+        <div className="ml-auto flex gap-2">
+          <div className="h-3 w-3 rounded-full bg-red-500" />
+          <div className="h-3 w-3 rounded-full bg-yellow-500" />
+          <div className="h-3 w-3 rounded-full bg-green-500" />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
+
+      <div className="space-y-4">
+        <div className="bg-black/50 p-4 rounded border border-green-900">
+          <h2 className="text-sm font-bold mb-2">CURRENT_STATE</h2>
+          <div className="flex items-start gap-2">
+            <span className="text-blue-400">{">"}</span>
+            <p className="text-sm">
+              {events.length > 0 ? currentText : "Awaiting new events..."}
+              <span className="animate-pulse">_</span>
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-black/50 p-4 rounded border border-green-900">
+          <h2 className="text-sm font-bold mb-2">EVENT_LOG</h2>
+          <div className="space-y-2">
+            {events.map((event) => (
+              <div key={event.id} className="text-sm flex gap-2">
+                <span className="text-blue-400 whitespace-nowrap">
+                  {new Date(event.timestamp).toLocaleTimeString()}
+                </span>
+                <span className="text-yellow-400">[{event.type}]</span>
+                <span>{event.message}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 text-sm text-green-600">
+          <span className="animate-pulse">{">"}</span>
+          <span>System operational - Press any key to interact</span>
+        </div>
+      </div>
     </div>
   );
 }
